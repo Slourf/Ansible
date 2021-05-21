@@ -1,0 +1,25 @@
+---
+- name: Check ansible user
+  command: getent passwd ansible
+  changed_when: false
+  register: check_ansible_user
+  ignore_errors: yes
+
+- block:
+  - name: Create Ansible user
+    user:
+      name: ansible
+      comment: "Ansible user"
+      password: "{{ ansible_password | password_hash('sha512') }}"
+      shell: /bin/bash
+  - name: Add authorized key
+    authorized_key:
+      user: ansible
+      key: "{{ lookup('file', '~/.ssh/id_ecdsa.pub') }}"
+      exclusive: yes
+  - name: Allow sudo for ansible
+    copy:
+      content: ansible ALL=(ALL) ALL
+      dest: /etc/sudoers.d/ansible
+      mode: 0600
+  when: check_ansible_user.rc == 2

@@ -1,0 +1,16 @@
+---
+# file: roles/common/tasks/main.yml
+- name: install ['nginx' ]
+  apt:
+    name: ['nginx']
+    state: latest
+    update_cache: yes
+  become: yes
+  become_method: sudo
+
+- name: Import nginx config
+  copy:
+    src: default.conf
+    dest: /etc/nginx/site-available/default
+    owner: root
+  notify: restart nginx

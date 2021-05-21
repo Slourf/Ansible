@@ -1,0 +1,106 @@
+---
+# file: roles/nameserver/tasks/main.yml
+- name: install ['bind9', 'dnsutils, resolvconf']
+  apt:
+    name: ['bind9', 'dnsutils', 'resolvconf']
+    state: latest
+  become: yes
+  become_method: sudo
+
+- name: Copy bind conf file
+  copy:
+    src: named.conf.local
+    dest: /etc/bind/named.conf.local
+  become: yes
+  become_method: sudo
+
+- name: Copy server root config
+  copy:
+    src: db.root
+    dest: /etc/bind/db.root
+  become: yes
+  become_method: sudo
+
+- name: Copy server config
+  copy:
+    src: db.lab.local
+    dest: /etc/bind/db.lab.local
+  become: yes
+  become_method: sudo
+
+- name: Copy server config option
+  copy:
+    src: named.conf.options
+    dest: /etc/bind/named.conf.options
+  become: yes
+  become_method: sudo
+
+- name: Copy server config 
+  copy:
+    src: named.conf
+    dest: /etc/bind/named.conf
+  become: yes
+  become_method: sudo
+
+- name: Copy server config log
+  copy:
+    src: named.conf.log
+    dest: /etc/bind/named.conf.log
+  become: yes
+  become_method: sudo
+
+- name: Create log dns log directory
+  file:
+    path: /var/log/named
+    owner: bind
+    group: bind
+    state: directory
+    mode: '0640'
+  become: yes
+  become_method: sudo
+
+- name: Create log dns log directory
+  file:
+    path: /var/log/named/update_debug.log
+    owner: bind
+    group: bind
+    state: touch
+    mode: '0640'
+  become: yes
+  become_method: sudo
+
+- name: Create log dns log directory
+  file:
+    path: /var/log/named/security_info.log
+    owner: bind
+    group: bind
+    state: touch
+    mode: '0640'
+  become: yes
+  become_method: sudo
+
+- name: Create log dns log directory
+  file:
+    path: /var/log/named/bind.log
+    owner: bind
+    group: bind
+    state: touch
+    mode: '0640'
+  become: yes
+  become_method: sudo
+
+- name: Enable service
+  service:
+    name: bind9
+    state: restarted
+    enabled: yes
+  become: yes
+  become_method: sudo
+
+- name: Copy server config 
+  copy:
+    src: head
+    dest: /etc/resolvconf/resolv.conf.d/head
+  become: yes
+  become_method: sudo
+  notify: restart resolvconf

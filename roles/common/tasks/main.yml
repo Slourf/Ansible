@@ -1,0 +1,33 @@
+---
+# file: roles/common/tasks/main.yml
+- name: install ['vim', 'sudo']
+  apt:
+    name: ['vim', 'sudo']
+    state: latest
+    update_cache: yes
+  become: yes
+  become_method: sudo
+
+- name: Import .vimrc
+  copy:
+    src: .vimrc
+    dest: /home/florian/
+    owner: florian
+
+- name: import .bashrc
+  copy:
+    src: .bashrc
+    dest: /home/florian/
+    owner: florian
+
+- name: Setup dns configuration on the machine
+  import_tasks: resolvconf.yml
+
+# - name: Set DNS IP
+#   copy:
+#     src: resolv.conf
+#     dest: /etc/
+#     owner: root
+#   become: yes
+#   become_method: sudo
+

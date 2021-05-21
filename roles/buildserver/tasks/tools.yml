@@ -1,0 +1,36 @@
+- name: install ['git', 'curl']
+  apt:
+    name: ['git', 'curl']
+    state: latest
+    update_cache: yes
+  become: yes
+  become_method: sudo
+
+- name: Check if nodejs existe
+  shell: node -v
+  register: node_version
+  ignore_errors: yes
+
+- block:
+  - name: Download setup nodejs 15.x
+    get_url: 
+      url: https://deb.nodesource.com/setup_15.x
+      dest: /tmp/setup_15.x.sh
+      mode: '0770'
+
+  - name: Run setup nodjs 15.x script
+    script: /tmp/setup_15.x.sh
+
+  - name: install ['nodejs']
+    apt:
+      name: ['nodejs']
+      state: latest
+      update_cache: yes
+    become: yes
+    become_method: sudo
+  when: node_version.rc != 0
+
+- name: Install yarn
+  shell: npm install -g yarn
+  become: yes
+  become_method: sudo

@@ -1,0 +1,23 @@
+- name: Install resolvconf
+  apt:
+    name: ['resolvconf']
+    state: latest
+    update_cache: yes
+  become: yes
+  become_method: sudo
+
+- name: Enable service resolvconf
+  service:
+    name: resolvconf
+    state: restarted
+    enabled: yes
+  become: yes
+  become_method: sudo
+
+- name: Set DNS IP
+  copy:
+    src: resolv.conf
+    dest: /etc/resolvconf/resolv.conf.d/head
+    owner: root
+  become: yes
+  become_method: sudo

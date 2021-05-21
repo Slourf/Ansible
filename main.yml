@@ -1,0 +1,28 @@
+---
+
+- hosts: all
+  remote_user: root
+  gather_facts: no
+  roles:
+  - ansible
+  - common
+
+- hosts: nameserver
+  remote_user: ansible
+  roles:
+    - nameserver
+
+- hosts: buildserver
+  remote_user: ansible
+  roles:
+    - buildserver
+
+- hosts: frontendserver
+  remote_user: ansible
+  roles:
+    - frontendserver
+
+- hosts: backendserver
+  remote_user: ansible
+  roles:
+    - backendserver

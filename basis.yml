@@ -1,0 +1,44 @@
+---
+- hosts: all
+  remote_user: root
+  tasks:
+  - name: ensure adeline as an account
+    user:
+      name: florian
+      password: $6$GXgZ7iErneo.7/f$aBEv83fUHo4LptnnQMQWhMRR2Igbj2cazbsRcFqWC593bj/Qi1Fs037q5vAVp00.EDgj28HEtpRv2AmUTWgg90
+      state: present
+      shell: /bin/bash
+      groups: sudo
+      append: yes
+
+  - name: copy bashrc
+    copy:
+      src: files/.bashrc
+      dest: /home/florian/
+      owner: florian
+
+  - name: copy vimrc
+    copy:
+      src: files/.vimrc
+      dest: /home/florian
+      owner: florian
+
+  - name: copry authorized key
+    authorized_key:
+      user: florian
+      state: present
+      key: "{{ lookup('file', '/home/florian/.ssh/id_rsa.pub') }}"
+ 
+  - name: install ['vim', 'sudo', 'nftables', 'nginx', 'certbot', 'bind9', 'python-certbot-nginx', 'dnsutils']
+    apt:
+      name: ['vim', 'sudo', 'nftables', 'nginx', 'certbot', 'bind9', 'python-certbot-nginx', 'dnsutils']
+      state: latest
+
+  - name: copy nftable conf
+    copy:
+      src: files/nftables.conf
+      dest: /etc/nftables.conf
+      owner: florian
+
+  - name: set table
+    shell: nft -f /etc/nftables.conf

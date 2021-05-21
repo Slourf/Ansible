@@ -1,0 +1,9 @@
+---
+# nameserver handlers
+
+- name: restart resolvconf
+  service:
+    name: resolvconf
+    state: restarted
+  become: yes
+  become_method: sudo

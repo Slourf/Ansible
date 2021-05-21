@@ -1,0 +1,4 @@
+all:
+    ansible_become: yes
+    ansible_become_password: Poussin1!
+    ansible_password: Poussin1!

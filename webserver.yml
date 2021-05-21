@@ -1,0 +1,53 @@
+---
+- hosts: webserver 
+  remote_user: root
+  tasks:
+  - name: Import the nginx server config
+    copy:
+      src: server/webserver.conf
+      dest: /etc/nginx/conf.d/webserver.conf
+    register: nginxconf
+  - name: Create server directory
+    file:
+      path: /home/florian/server
+      state: directory
+
+  - name: Import the nginx server data
+    copy:
+      src: server/index.html
+      dest: /home/florian/server/index.html
+  
+  - name: BUG race between nginx and systemd -> creation du dossier nginx.service.d
+    file:
+      path: /etc/systemd/system/nginx.service.d
+      state: directory
+
+  - name: BUG race between nginx and systemd -> creation du fichier override.conf
+    shell: printf "[Service]\nExecStartPost=/bin/sleep 0.1\n" > /etc/systemd/system/nginx.service.d/override.conf
+
+  - name: BUG race between nginx and systemd -> reload
+    shell: systemctl daemon-reload
+
+  - name: Kill the current nginx process
+    shell: pkill nginx
+    sudo: yes
+    register: pkill
+    failed_when: pkill.rc != 0 and pkill.rc != 1
+
+  - name: Generate certificate and set-up https
+    shell: certbot --nginx --non-interactive --agree-tos -m florian.chatelus@epita.fr --domains chatel-f.adlin2020.p0m.fr --redirect
+     
+  - name: Kill the current nginx process
+    shell: pkill nginx
+    sudo: yes
+    register: pkill
+    failed_when: pkill.rc != 0 and pkill.rc != 1
+  - name: Restart nginx server
+    service:
+      name: nginx
+      state: restarted
+
+  - name: Restart nginx server
+    service:
+      name: nginx
+      state: restarted

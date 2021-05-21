@@ -1,0 +1,41 @@
+---
+# file: roles/common/tasks/main.yml
+- name: install ['default-jdk']
+  apt:
+    name: ['default-jdk']
+    state: latest
+    update_cache: yes
+  become: yes
+  become_method: sudo
+
+- name: Get jenkins repository GPG key
+  shell: wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | apt-key add -
+  become: yes
+  become_method: sudo
+
+- name: Add jenkins repository
+  shell: sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+  become: yes
+  become_method: sudo
+
+- name: install ['jenkins']
+  apt:
+    name: ['jenkins']
+    state: latest
+    update_cache: yes
+  become: yes
+  become_method: sudo
+
+- name: Restart jenkins service
+  service:
+    name: jenkins
+    state: restarted
+    enabled: yes
+  become: yes
+  become_method: sudo
+
+- name: Tools to build the application
+  import_tasks: tools.yml 
+
+- name: Tools to deploy the application
+  import_tasks: deploy.yml 

@@ -1,0 +1,24 @@
+- name: Check jenkins user
+  command: getent passwd jenkins 
+  changed_when: false
+  register: check_jenkins_user
+  ignore_errors: yes
+
+- block:
+  - name: Create Jenkins user
+    user:
+      name: jenkins
+      comment: "Jenkins user"
+      password: "{{ jenkins_password | password_hash('sha512') }}"
+      shell: /bin/bash
+  - name: Add authorized key
+    authorized_key:
+      user: jenkins
+      key: "{{ lookup('file', '~/.ssh/id_ecdsa.pub') }}"
+      exclusive: yes
+  - name: Allow sudo for jenkins
+    copy:
+      content: jenkins ALL=(ALL) ALL
+      dest: /etc/sudoers.d/jenkins
+      mode: 0600
+  when: check_jenkins_user.rc == 2
